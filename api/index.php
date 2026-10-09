@@ -1,9 +1,12 @@
 <?php
+// Menyembunyikan warning deprecated untuk PHP 8.5
+error_reporting(E_ALL & ~E_DEPRECATED);
+
 // Konfigurasi Supabase
 $supabase_url = "https://fuoohcvwkeyticivjffl.supabase.co";
 $supabase_key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1b29oY3Z3a2V5dGljaXZqZmZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE1NTczOTMsImV4cCI6MjEwNzEzMzM5M30.EYy1QbiOhXuFuiDxfRh8l_otFZYRyZP7_kc6q7YP9rw";
 
-// Fungsi untuk mengambil data servis dari Supabase
+// Fungsi untuk mengambil data dari Supabase
 function getServices($url, $key) {
     $ch = curl_init("$url/rest/v1/service?select=*");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -13,8 +16,7 @@ function getServices($url, $key) {
     ]);
     
     $response = curl_exec($ch);
-    curl_close($ch);
-    
+    // curl_close tidak lagi wajib di PHP 8.5+
     return json_decode($response, true);
 }
 
@@ -36,7 +38,7 @@ $total_servis = is_array($services) ? count($services) : 0;
         <header class="bg-blue-600 text-white shadow-md">
             <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
                 <h1 class="text-xl font-bold">BengkelPro</h1>
-                <span class="text-sm bg-blue-700 px-3 py-1 rounded-full">PHP <?= phpversion(); ?> &bull; Supabase Connected</span>
+                <span class="text-sm bg-blue-700 px-3 py-1 rounded-full">PHP <?= phpversion(); ?> &bull; Supabase Live</span>
             </div>
         </header>
 
@@ -44,7 +46,7 @@ $total_servis = is_array($services) ? count($services) : 0;
         <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-8">
             <div class="mb-6">
                 <h2 class="text-2xl font-bold text-gray-800">Dashboard Manajemen Bengkel</h2>
-                <p class="text-gray-600">Terhubung langsung ke database Supabase.</p>
+                <p class="text-gray-600">Sistem terintegrasi dengan database awan.</p>
             </div>
 
             <!-- Grid Statistik -->
@@ -52,7 +54,7 @@ $total_servis = is_array($services) ? count($services) : 0;
                 <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
                     <h3 class="text-gray-500 text-sm font-medium">Total Servis Masuk</h3>
                     <p class="text-3xl font-bold text-gray-800 mt-2"><?= $total_servis; ?></p>
-                    <span class="text-xs text-green-600 mt-1 inline-block">Status: Sinkronisasi Aktif</span>
+                    <span class="text-xs text-green-600 mt-1 inline-block">Status: Terhubung</span>
                 </div>
                 <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
                     <h3 class="text-gray-500 text-sm font-medium">Suku Cadang</h3>
@@ -66,34 +68,35 @@ $total_servis = is_array($services) ? count($services) : 0;
                 </div>
             </div>
 
-            <!-- Tabel Data Servis dari Supabase -->
+            <!-- Tabel Data Servis -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4">Daftar Servis Terbaru</h3>
                 <?php if (empty($services)): ?>
-                    <p class="text-gray-500 text-sm">Belum ada data di tabel Supabase. Silakan tambahkan baris data baru melalui Supabase Table Editor.</p>
+                    <p class="text-gray-500 text-sm">Belum ada data di tabel Supabase.</p>
                 <?php else: ?>
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200 text-sm">
                             <thead>
                                 <tr class="bg-gray-50 text-left text-gray-500 font-medium">
                                     <th class="px-4 py-2">ID</th>
-                                    <th class="px-4 py-2">Pelanggan</th>
-                                    <th class="px-4 py-2">No. Polisi</th>
-                                    <th class="px-4 py-2">Keluhan</th>
-                                    <th class="px-4 py-2">Status</th>
+                                    <th class="px-4 py-2">Data / Kolom Tersedia</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
                                 <?php foreach ($services as $row): ?>
                                 <tr>
-                                    <td class="px-4 py-2"><?= htmlspecialchars($row['id'] ?? ''); ?></td>
-                                    <td class="px-4 py-2"><?= htmlspecialchars($row['nama_pelanggan'] ?? '-'); ?></td>
-                                    <td class="px-4 py-2"><?= htmlspecialchars($row['nomor_polisi'] ?? '-'); ?></td>
-                                    <td class="px-4 py-2"><?= htmlspecialchars($row['keluhan'] ?? '-'); ?></td>
-                                    <td class="px-4 py-2">
-                                        <span class="px-2 py-1 text-xs rounded bg-yellow-100 text-yellow-800">
-                                            <?= htmlspecialchars($row['status'] ?? 'Menunggu'); ?>
-                                        </span>
+                                    <td class="px-4 py-2 font-semibold text-gray-700">#<?= htmlspecialchars($row['id'] ?? ''); ?></td>
+                                    <td class="px-4 py-2 text-gray-600">
+                                        <?php 
+                                            // Menampilkan seluruh kolom dinamis yang ada di Supabase Anda
+                                            $details = [];
+                                            foreach($row as $key => $val) {
+                                                if($key !== 'id') {
+                                                    $details[] = "<b>$key:</b> " . htmlspecialchars($val ?? '-');
+                                                }
+                                            }
+                                            echo implode(' | ', $details);
+                                        ?>
                                     </td>
                                 </tr>
                                 <?php endforeach; ?>
