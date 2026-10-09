@@ -1,6 +1,6 @@
 <?php
-// Menyembunyikan warning deprecated untuk PHP 8.5
-error_reporting(E_ALL & ~E_DEPRECATED);
+// Menyembunyikan warning untuk menjaga kerapian tampilan
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_WARNING);
 
 // Konfigurasi Supabase
 $supabase_url = "https://fuoohcvwkeyticivjffl.supabase.co";
@@ -16,7 +16,6 @@ function getServices($url, $key) {
     ]);
     
     $response = curl_exec($ch);
-    // curl_close tidak lagi wajib di PHP 8.5+
     return json_decode($response, true);
 }
 
@@ -71,7 +70,7 @@ $total_servis = is_array($services) ? count($services) : 0;
             <!-- Tabel Data Servis -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4">Daftar Servis Terbaru</h3>
-                <?php if (empty($services)): ?>
+                <?php if (empty($services) || !is_array($services)): ?>
                     <p class="text-gray-500 text-sm">Belum ada data di tabel Supabase.</p>
                 <?php else: ?>
                     <div class="overflow-x-auto">
@@ -88,14 +87,17 @@ $total_servis = is_array($services) ? count($services) : 0;
                                     <td class="px-4 py-2 font-semibold text-gray-700">#<?= htmlspecialchars($row['id'] ?? ''); ?></td>
                                     <td class="px-4 py-2 text-gray-600">
                                         <?php 
-                                            // Menampilkan seluruh kolom dinamis yang ada di Supabase Anda
-                                            $details = [];
-                                            foreach($row as $key => $val) {
-                                                if($key !== 'id') {
-                                                    $details[] = "<b>$key:</b> " . htmlspecialchars($val ?? '-');
+                                            if (is_array($row)) {
+                                                $details = [];
+                                                foreach($row as $key => $val) {
+                                                    if($key !== 'id') {
+                                                        $details[] = "<b>$key:</b> " . htmlspecialchars($val ?? '-');
+                                                    }
                                                 }
+                                                echo implode(' | ', $details);
+                                            } else {
+                                                echo htmlspecialchars($row);
                                             }
-                                            echo implode(' | ', $details);
                                         ?>
                                     </td>
                                 </tr>
