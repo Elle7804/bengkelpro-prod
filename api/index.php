@@ -3,13 +3,32 @@ declare(strict_types=1);
 
 error_reporting(E_ALL & ~E_DEPRECATED);
 
-$supabase_url = getenv('SUPABASE_URL') ?: 'https://fuoohcvwkeyticivjffl.supabase.co';
-$supabase_key = getenv('SUPABASE_ANON_KEY') ?: '';
+// Fail closed: the workshop dashboard is private and must never expose customer data.
+$admin_user = getenv('BENGKELPRO_ADMIN_USER') ?: '';
+$admin_password = getenv('BENGKELPRO_ADMIN_PASSWORD') ?: '';
+$supabase_url = rtrim(getenv('SUPABASE_URL') ?: '', '/');
+$supabase_key = getenv('SUPABASE_SERVICE_ROLE_KEY') ?: '';
+
+if ($admin_user === '' || $admin_password === '' || $supabase_url === '' || $supabase_key === '') {
+    http_response_code(503);
+    header('Content-Type: text/plain; charset=utf-8');
+    exit('Dashboard belum dikonfigurasi dengan aman.');
+}
+
+$provided_user = $_SERVER['PHP_AUTH_USER'] ?? '';
+$provided_password = $_SERVER['PHP_AUTH_PW'] ?? '';
+if (!hash_equals($admin_user, $provided_user) || !hash_equals($admin_password, $provided_password)) {
+    header('WWW-Authenticate: Basic realm="BengkelPro Admin", charset="UTF-8"');
+    http_response_code(401);
+    header('Content-Type: text/plain; charset=utf-8');
+    exit('Autentikasi diperlukan.');
+}
+
 $services = [];
 $service_error = null;
 
-if ($supabase_key !== '' && function_exists('curl_init')) {
-    $ch = curl_init($supabase_url . '/rest/v1/service?select=*&order=id.desc&limit=8');
+if (function_exists('curl_init')) {
+    $ch = curl_init($supabase_url . '/rest/v1/service?select=id&order=id.desc&limit=8');
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_CONNECTTIMEOUT => 5,
@@ -36,7 +55,7 @@ if ($supabase_key !== '' && function_exists('curl_init')) {
     }
     curl_close($ch);
 } else {
-    $service_error = 'Konfigurasi Supabase belum lengkap. Tambahkan SUPABASE_URL dan SUPABASE_ANON_KEY pada environment variables.';
+    $service_error = 'Ekstensi koneksi database tidak tersedia.';
 }
 
 $total_servis = count($services);
@@ -127,10 +146,10 @@ function e(mixed $value): string {
         <?php if ($service_error !== null): ?><div class="alert alert-warning mt-3 mb-0 py-2 small"><?= e($service_error) ?></div>
         <?php elseif ($services === []): ?><div class="empty-state"><i class="bi bi-inbox fs-3 d-block mb-2"></i>Belum ada data servis yang tercatat.</div>
         <?php else: ?>
-          <div class="table-responsive"><table class="table align-middle"><thead><tr><th>Referensi</th><th>Detail tersedia</th><th>Data</th></tr></thead><tbody>
+          <div class="table-responsive"><table class="table align-middle"><thead><tr><th>Referensi</th><th>Informasi</th><th>Status</th></tr></thead><tbody>
           <?php foreach ($services as $index => $row): ?>
             <tr><td><div class="d-flex align-items-center gap-2"><span class="service-avatar"><i class="bi bi-wrench"></i></span><div><div class="service-name">Servis #<?= e(is_array($row) ? ($row['id'] ?? ($index + 1)) : ($index + 1)) ?></div><div class="service-meta">Record database</div></div></div></td>
-            <td><div class="service-data"><?php if (is_array($row)): $parts = []; foreach ($row as $key => $value) { if ($key !== 'id' && !is_array($value) && !is_object($value)) $parts[] = (string)$key . ': ' . (string)($value ?? '-'); } echo e(implode(' · ', array_slice($parts, 0, 3)) ?: 'Kolom tambahan tersedia'); else: echo e($row); endif; ?></div></td>
+            <td><div class="service-data">Detail pelanggan dan servis tidak ditampilkan pada ringkasan.</div></td>
             <td><span class="pill gray">Tercatat</span></td></tr>
           <?php endforeach; ?>
           </tbody></table></div>
