@@ -6,6 +6,14 @@
   },
   "routes": [
     {
+      "src": "/admin",
+      "dest": "/api/admin.php"
+    },
+    {
+      "src": "/booking",
+      "dest": "/api/index.php"
+    },
+    {
       "src": "/",
       "dest": "/api/index.php"
     },
