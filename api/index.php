@@ -197,4 +197,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div></div></section>
 <footer class="footer text-center py-4 mt-4 border-top"><div class="fw-bold mb-1"><?= h($profile["workshop_name"] ?? "BengkelPro") ?></div><div>Partner perawatan kendaraan Anda · Booking servis online tanpa login</div><?php if (!empty($profile['instagram_url'])): ?><a class="d-inline-block mt-2" href="<?= h($profile['instagram_url']) ?>" target="_blank" rel="noopener noreferrer">Instagram</a><?php endif; ?></footer>
 </main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body></html>
