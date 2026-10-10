@@ -10,6 +10,10 @@
       "dest": "/api/admin.php"
     },
     {
+      "src": "/admin/profile",
+      "dest": "/api/profile.php"
+    },
+    {
       "src": "/booking",
       "dest": "/api/index.php"
     },
