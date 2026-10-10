@@ -76,12 +76,16 @@ function e(mixed $value): string {
     .panel-title{font-weight:800;font-size:15px;margin:0}.panel-sub{font-size:12px;color:var(--muted);margin-top:5px}.service-row{display:flex;align-items:center;gap:11px;padding:13px 0;border-bottom:1px solid #f2f1f7}.service-row:last-child{border-bottom:0}.service-avatar{width:38px;height:38px;border-radius:12px;background:#f1efff;color:#7764e6;display:grid;place-items:center;font-size:17px;flex-shrink:0}.service-name{font-weight:700;font-size:12px;max-width:210px;overflow-wrap:anywhere}.service-meta{font-size:11px;color:var(--muted);margin-top:4px}.service-data{font-size:11px;color:#77778f;overflow-wrap:anywhere}
     .channel-card{display:flex;align-items:center;gap:13px;border:1px solid var(--line);border-radius:13px;padding:14px;margin-top:11px}.channel-icon{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:20px}.channel-icon.telegram{background:#e8f5ff;color:#229ed9}.channel-icon.whatsapp{background:#e6f8ed;color:#1d9d62}.channel-title{font-size:12px;font-weight:800}.channel-note{font-size:11px;color:var(--muted);margin-top:3px}.channel-status{margin-left:auto;font-size:10px;color:#8a8aa3;background:#f3f3f7;padding:5px 7px;border-radius:7px;white-space:nowrap}
     .table{--bs-table-bg:transparent;margin:12px 0 0}.table th{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#a09fb3;font-weight:700;border-bottom-color:var(--line);padding:12px 10px}.table td{font-size:12px;padding:14px 10px;border-bottom-color:#f3f2f7;vertical-align:middle}.empty-state{text-align:center;padding:28px 10px;color:var(--muted);font-size:12px}.footer-note{font-size:11px;color:#aaa8bd;margin-top:22px}
-    @media(max-width:991px){.sidebar{width:70px;padding:22px 9px}.brand{padding:0 9px 28px}.brand-name,.nav-caption,.side-link span,.sidebar-bottom{display:none}.side-link{justify-content:center;padding:12px 0}.side-link i{width:auto}.main{margin-left:70px;padding:22px 18px}}@media(max-width:575px){.main{padding:18px 13px}.topbar{margin-bottom:20px}.page-title{font-size:21px}.welcome{padding:21px}.welcome .welcome-icon{right:-12px}.top-actions .hide-mobile{display:none}.stat-value{font-size:24px}}
+    .mobile-menu-btn{display:none}
+    @media(max-width:991px) and (min-width:768px){.sidebar{width:70px;padding:22px 9px}.brand{padding:0 9px 28px}.brand-name,.nav-caption,.side-link span,.sidebar-bottom{display:none}.side-link{justify-content:center;padding:12px 0}.side-link i{width:auto}.main{margin-left:70px;padding:22px 18px}}
+    @media(max-width:767px){.sidebar{width:260px;max-width:82vw;padding:24px 16px;transform:translateX(-105%);transition:transform .25s ease;box-shadow:12px 0 35px #24243b18}.sidebar.mobile-open{transform:translateX(0)}.brand{padding:0 12px 30px}.brand-name,.nav-caption,.side-link span,.sidebar-bottom{display:revert}.side-link{justify-content:flex-start;padding:11px 12px}.side-link i{width:20px}.main{margin-left:0;padding:18px 13px}.mobile-menu-btn{display:grid;position:absolute;left:50%;transform:translateX(-50%);top:0;width:42px;height:42px;border:1px solid var(--line);background:#fff;border-radius:12px;color:var(--ink);place-items:center;font-size:21px;z-index:2}.topbar{position:relative;min-height:42px;align-items:center;margin-bottom:22px}.topbar-heading{padding-right:50px}.page-title{font-size:21px}.top-actions{margin-left:auto}.top-actions .hide-mobile{display:none}.welcome{padding:21px}.welcome .welcome-icon{right:-12px}.stat-value{font-size:24px}.sidebar-backdrop{display:none;position:fixed;inset:0;background:#17162d66;z-index:9}.sidebar-backdrop.show{display:block}}
+    @media(prefers-reduced-motion:reduce){.sidebar{transition:none}}
   </style>
 </head>
 <body>
 <div class="app">
-  <aside class="sidebar">
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+  <aside class="sidebar" id="appSidebar">
     <div class="brand"><span class="brand-icon"><i class="bi bi-wrench-adjustable-circle"></i></span><span class="brand-name">Bengkel<span style="color:var(--purple)">Pro</span></span></div>
     <div class="nav-caption">Workspace</div>
     <a class="side-link active" href="#dashboard"><i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span></a>
@@ -95,7 +99,8 @@ function e(mixed $value): string {
   </aside>
   <main class="main" id="dashboard">
     <header class="topbar">
-      <div><div class="crumb">Workspace / Overview</div><h1 class="page-title">Dashboard</h1></div>
+      <div class="topbar-heading"><div class="crumb">Workspace / Overview</div><h1 class="page-title">Dashboard</h1></div>
+      <button class="mobile-menu-btn" id="mobileMenuToggle" type="button" aria-label="Buka menu navigasi" aria-controls="appSidebar" aria-expanded="false"><i class="bi bi-list"></i></button>
       <div class="top-actions"><button class="icon-btn hide-mobile" aria-label="Notifikasi"><i class="bi bi-bell"></i></button><button class="icon-btn hide-mobile" aria-label="Bantuan"><i class="bi bi-question-circle"></i></button><div class="avatar">BP</div></div>
     </header>
 
@@ -142,5 +147,34 @@ function e(mixed $value): string {
   </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(() => {
+  const sidebar = document.getElementById('appSidebar');
+  const toggle = document.getElementById('mobileMenuToggle');
+  const backdrop = document.getElementById('sidebarBackdrop');
+  if (!sidebar || !toggle || !backdrop) return;
+  const closeMenu = () => {
+    sidebar.classList.remove('mobile-open');
+    backdrop.classList.remove('show');
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.setAttribute('aria-label', 'Buka menu navigasi');
+    toggle.innerHTML = '<i class="bi bi-list"></i>';
+    document.body.style.overflow = '';
+  };
+  const openMenu = () => {
+    sidebar.classList.add('mobile-open');
+    backdrop.classList.add('show');
+    toggle.setAttribute('aria-expanded', 'true');
+    toggle.setAttribute('aria-label', 'Tutup menu navigasi');
+    toggle.innerHTML = '<i class="bi bi-x-lg"></i>';
+    document.body.style.overflow = 'hidden';
+  };
+  toggle.addEventListener('click', () => sidebar.classList.contains('mobile-open') ? closeMenu() : openMenu());
+  backdrop.addEventListener('click', closeMenu);
+  sidebar.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
+  document.addEventListener('keydown', event => { if (event.key === 'Escape') closeMenu(); });
+  window.addEventListener('resize', () => { if (window.innerWidth > 767) closeMenu(); });
+})();
+</script>
 </body>
 </html>
