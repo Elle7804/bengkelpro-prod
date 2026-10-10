@@ -1,0 +1,2 @@
+GitHub write-access test created by ChatGPT on 2026-10-10.
+This file is on the temporary branch chatgpt-connection-test-20261010, not on main.
