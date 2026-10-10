@@ -111,6 +111,7 @@ function e(mixed $value): string {
     <a class="side-link" href="#booking"><i class="bi bi-calendar2-check"></i><span>Booking Servis</span><span class="count"><?= $total_servis ?></span></a>
     <a class="side-link" href="#services"><i class="bi bi-tools"></i><span>Data Servis</span></a>
     <a class="side-link" href="#customers"><i class="bi bi-people"></i><span>Pelanggan</span></a>
+    <a class="side-link" href="/admin/profile"><i class="bi bi-shop"></i><span>Profil Bengkel</span></a>
     <div class="nav-caption">Pengelolaan</div>
     <a class="side-link" href="#reports"><i class="bi bi-bar-chart-line"></i><span>Laporan</span></a>
     <a class="side-link" href="#integrations"><i class="bi bi-chat-dots"></i><span>Integrasi Chat</span></a>
